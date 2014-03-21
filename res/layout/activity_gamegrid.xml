@@ -1,0 +1,144 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/background_orange"
+    android:focusable="false"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context=".GameActivity" >
+
+    <ImageButton
+        android:id="@+id/imageButton_num_1"
+        android:layout_width="68dp"
+        android:layout_height="102dp"
+        android:layout_toLeftOf="@+id/imageButton_num_2"
+        android:clickable="false"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:src="@drawable/number_1" 
+        android:contentDescription="@string/image_button_des" />
+
+    <ImageButton
+        android:id="@+id/imageButton_num_2"
+        android:layout_width="68dp"
+        android:layout_height="102dp"
+        android:layout_alignParentTop="true"
+        android:layout_centerInParent="true"
+        android:clickable="false"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:src="@drawable/number_2" 
+        android:contentDescription="@string/image_button_des" />
+
+    <ImageButton
+        android:id="@+id/imageButton_num_3"
+        android:layout_width="68dp"
+        android:layout_height="102dp"
+        android:layout_above="@+id/imageButton_num_4"
+        android:layout_toRightOf="@+id/imageButton_num_2"
+        android:clickable="false"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:src="@drawable/number_3"
+        android:contentDescription="@string/image_button_des"  />
+
+    <ImageButton
+        android:id="@+id/imageButton_num_4"
+        android:layout_width="68dp"
+        android:layout_height="102dp"
+        android:layout_alignLeft="@+id/imageButton_num_1"
+        android:layout_below="@+id/imageButton_num_1"
+        android:clickable="false"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:src="@drawable/number_4"
+        android:contentDescription="@string/image_button_des"  />
+
+    <ImageButton
+        android:id="@+id/imageButton_num_5"
+        android:layout_width="68dp"
+        android:layout_height="102dp"
+        android:layout_above="@+id/imageButton_num_7"
+        android:layout_toLeftOf="@+id/imageButton_num_3"
+        android:clickable="false"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:src="@drawable/number_5"
+        android:contentDescription="@string/image_button_des"  />
+
+    <ImageButton
+        android:id="@+id/imageButton_num_6"
+        android:layout_width="68dp"
+        android:layout_height="102dp"
+        android:layout_above="@+id/imageButton_num_7"
+        android:layout_toRightOf="@+id/imageButton_num_5"
+        android:clickable="false"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:src="@drawable/number_6"
+        android:contentDescription="@string/image_button_des"  />
+
+    <ImageButton
+        android:id="@+id/imageButton_num_7"
+        android:layout_width="68dp"
+        android:layout_height="102dp"
+        android:layout_alignLeft="@+id/imageButton_num_4"
+        android:layout_below="@+id/imageButton_num_4"
+        android:clickable="false"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:src="@drawable/number_7"
+        android:contentDescription="@string/image_button_des"  />
+
+    <ImageButton
+        android:id="@+id/imageButton_num_8"
+        android:layout_width="68dp"
+        android:layout_height="102dp"
+        android:layout_below="@+id/imageButton_num_5"
+        android:layout_toLeftOf="@+id/imageButton_num_6"
+        android:clickable="false"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:src="@drawable/number_8"
+        android:contentDescription="@string/image_button_des"  />
+
+    <ImageButton
+        android:id="@+id/imageButton_num_9"
+        android:layout_width="68dp"
+        android:layout_height="102dp"
+        android:layout_alignLeft="@+id/imageButton_num_6"
+        android:layout_below="@+id/imageButton_num_6"
+        android:clickable="false"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:src="@drawable/number_9"
+        android:contentDescription="@string/image_button_des"  />
+
+    <Button
+        android:id="@+id/button_undo"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_toLeftOf="@+id/button_shuffle"
+        android:text="@string/button_undo" />
+
+    <Button
+        android:id="@+id/button_shuffle"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:text="@string/button_shuffle" />
+    
+    <Button
+        android:id="@+id/button_solve"
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_toRightOf="@+id/button_shuffle"
+        android:text="@string/button_solve" />
+
+</RelativeLayout>
