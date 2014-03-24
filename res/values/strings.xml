@@ -6,6 +6,7 @@
     <string name="hello_world">Hello world!</string>
     <string name="button_start">Start Rotating!</string>
     <string name="button_about">How to rotate?</string>
+    <string name="button_ok">OK</string>
     <string name="title_activity_main">MainActivity</string>
     <string name="title_activity_game_grid">GameGrid</string>
     <string name="title_activity_about">About</string>
@@ -13,5 +14,8 @@
     <string name="button_shuffle">Shuffle</string>
     <string name="button_solve">Solve</string>
     <string name="image_button_des">NumberCard</string>
+    <string name="about_rotateit">Select any rectangular cycle in a shuffled 3*3 number grid. 
+  Numbers will rotate along the cycle clockwise or counter-clockwise based on your select direction. 
+  Solve the puzzle by rotate it back to order.\n\nCreated by Kevin Yufei Chen</string>
 
 </resources>

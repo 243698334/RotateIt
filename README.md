@@ -9,7 +9,5 @@
   Solve the puzzle by rotate it back to order.
 
 ## TODO
-  
-  Step counter, 
-  Undo, 
+
   Search algorithm for the minimum steps

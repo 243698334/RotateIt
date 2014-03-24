@@ -7,7 +7,6 @@ import android.app.Activity;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
@@ -15,22 +14,30 @@ import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.kevinychen.rotateit.R;
 import com.kevinychen.rotateit.util.NumberCard;
 import com.kevinychen.rotateit.util.RotateValidator;
+import com.kevinychen.rotateit.util.RotateValidator.RotateDirection;
+import com.kevinychen.rotateit.util.StepRecorder;
+import com.kevinychen.rotateit.util.StepRecorder.Step;
 
 public class GameActivity extends Activity {
 
 	private final int NUMBER_QUANTITY = 9;
 	
+	private boolean gameStarted;
+
+	private Button buttonStart;
 	private Button buttonUndo;
 	private Button buttonShuffle;
+	private Button buttonSolve;
+	private TextView textViewCurrentStepCount;
+	
 	private NumberCard[] numberCards = new NumberCard[NUMBER_QUANTITY + 1];
 	private Drawable defaultNumberCardBackground;
-	
-	public RotateValidator rotateValidator = RotateValidator.getInstance();
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -38,14 +45,17 @@ public class GameActivity extends Activity {
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
-		setContentView(R.layout.activity_gamegrid);
+		setContentView(R.layout.activity_game);
 
 		numberCardsInit();
+		gameStarted = false;
 
+		textViewCurrentStepCount = (TextView) findViewById(R.id.textView_currentStepCount);
+		
 		buttonShuffle = (Button) findViewById(R.id.button_shuffle);
 		buttonShuffle.setOnClickListener(new View.OnClickListener() {
 			@Override
-			public void onClick(View v) {
+			public void onClick(View arg0) {
 				shuffle();
 			}
 		});
@@ -53,8 +63,27 @@ public class GameActivity extends Activity {
 		buttonUndo = (Button) findViewById(R.id.button_undo);
 		buttonUndo.setOnClickListener(new View.OnClickListener() {
 			@Override
-			public void onClick(View v) {
-				// TODO Auto-generated method stub
+			public void onClick(View arg0) {
+				undo();
+			}
+		});
+		
+		buttonSolve = (Button) findViewById(R.id.button_solve);
+		buttonSolve.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				// TODO: Solve algorithm
+			}
+		});
+		
+		buttonStart = (Button) findViewById(R.id.button_start);
+		buttonStart.setOnClickListener(new View.OnClickListener() {	
+			@Override
+			public void onClick(View arg0) {
+				buttonStart.setVisibility(View.INVISIBLE);
+				textViewCurrentStepCount.setVisibility(View.VISIBLE);
+				shuffle();
+				gameStarted = true;
 			}
 		});
 	}
@@ -67,7 +96,7 @@ public class GameActivity extends Activity {
 	@Override
 	public void onWindowFocusChanged(boolean hasFocus) {
 	    super.onWindowFocusChanged(hasFocus);
-	    if(hasFocus) {
+	    if (hasFocus) {
 	        numberCardsCoordsInit();
 	    }
 	}
@@ -79,17 +108,18 @@ public class GameActivity extends Activity {
 
 		switch (event.getAction()) {
 		case MotionEvent.ACTION_DOWN: 
+			if (!gameStarted) break;
 			selectWithPenMove(penX, penY);
 			break;
 		case MotionEvent.ACTION_MOVE: 
+			if (!gameStarted) break;
 			selectWithPenMove(penX, penY);
 			break;
 		case MotionEvent.ACTION_UP: 
+			if (!gameStarted) break;
 			selectWithPenMove(penX, penY);
 			rotate();
-			for (int i = 1; i < numberCards.length; i++) {
-				findViewById(numberCards[i].getImageButtonId()).setBackground(defaultNumberCardBackground);
-			}
+			resetNumberCardsBackground();
 			RotateValidator.reset();
 			break;
 		default:
@@ -103,6 +133,7 @@ public class GameActivity extends Activity {
 	 * Called in onCreate();
 	 */
 	private void numberCardsInit() {
+		// The first slot of numberCards is null to match the indices
 		numberCards[0] = null;
 		for (int i = 1; i < numberCards.length; i++) {
 			numberCards[i] = new NumberCard(i);
@@ -148,6 +179,16 @@ public class GameActivity extends Activity {
 					currNumberCardY, numberCardWidth, numberCardHeight);
 		}
 	}
+	
+	/**
+	 * Reset the background of all NumberCards
+	 * Called after each move
+	 */
+	private void resetNumberCardsBackground() {
+		for (int i = 1; i < numberCards.length; i++) {
+			findViewById(numberCards[i].getImageButtonId()).setBackground(defaultNumberCardBackground);
+		}
+	}
 
 	/**
 	 * Handle onTouchEvent()
@@ -158,7 +199,7 @@ public class GameActivity extends Activity {
 		for (int i = 1; i < numberCards.length; i++) {
 			if (numberCards[i].containCoord(x, y)) {
 				findViewById(numberCards[i].getImageButtonId()).setBackgroundColor(Color.RED);
-				rotateValidator.selectNumberCard(numberCards[i]);
+				RotateValidator.selectNumberCard(numberCards[i]);
 				break;
 			}
 		}
@@ -175,6 +216,8 @@ public class GameActivity extends Activity {
 		}
 		Collections.shuffle(Arrays.asList(shuffledNumbers));
 		moveNumberCards(shuffledNumbers);
+		StepRecorder.reset();
+		updateStepCounter();
 	}
 
 	/**
@@ -182,15 +225,36 @@ public class GameActivity extends Activity {
 	 * Post a Toast message
 	 */
 	private void rotate() {
-		if (rotateValidator.validate()) {
-			Integer[] rotatedNumbers = rotateValidator.getRotatedIndices();
-			Log.d("Rotate result", Arrays.toString(rotatedNumbers));
+		if (RotateValidator.validate()) {
+			Integer[] rotatedNumbers = RotateValidator.getRotatedIndicesByCurrentType();
 			if (rotatedNumbers != null) {
 				moveNumberCards(rotatedNumbers);
-				Toast.makeText(getApplicationContext(), "Rotated!", Toast.LENGTH_SHORT).show();
+				StepRecorder.newStep(RotateValidator.getRotateType(), RotateValidator.getRotateDirection());
+				updateStepCounter();
+				if (checkSolved()) {
+					Toast.makeText(getApplicationContext(), "Yay! Solved!", Toast.LENGTH_SHORT).show();
+				} else {
+					Toast.makeText(getApplicationContext(), "Rotated!", Toast.LENGTH_SHORT).show();
+				}
 			} 
 		} else {
 			Toast.makeText(getApplicationContext(), "No Way!", Toast.LENGTH_SHORT).show();
+		}
+	}
+	
+	/**
+	 * Undo the last move
+	 */
+	private void undo() {
+		Step lastStep = StepRecorder.popLastMove();
+		if (lastStep == null) {
+			Toast.makeText(getApplicationContext(), "Nothing to Undo", Toast.LENGTH_SHORT).show();
+		} else {
+			int rotateType = lastStep.rotateType;
+			RotateDirection direction = RotateValidator.getOppositeDirection(lastStep.direction);
+			moveNumberCards(RotateValidator.getRotatedIndicesByGivenType(rotateType, direction));
+			updateStepCounter();
+			Toast.makeText(getApplicationContext(), "Undo Last Rotate", Toast.LENGTH_SHORT).show();
 		}
 	}
 	
@@ -210,6 +274,26 @@ public class GameActivity extends Activity {
 			ImageButton currNumCard = (ImageButton)findViewById(numberCards[i].getImageButtonId());
 			currNumCard.setImageDrawable(getResources().getDrawable(numberCards[i].getImageId()));
 		}
+	}
+	
+	/**
+	 * Update the current step count textView
+	 * @param new value to be set
+	 */
+	private void updateStepCounter() {
+		textViewCurrentStepCount.setText("Step Count: " + StepRecorder.getStepCount());
+	}
+	
+	/**
+	 * Check if the puzzle is solved
+	 */
+	private boolean checkSolved() {
+		for (int i = 1; i < numberCards.length; i++) {
+			if (numberCards[i].getNumber() != i) {
+				return false;
+			}
+		}
+		return true;
 	}
 }
 

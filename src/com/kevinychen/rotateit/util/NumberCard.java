@@ -1,7 +1,6 @@
 package com.kevinychen.rotateit.util;
 
 import android.graphics.Rect;
-import android.util.Log;
 
 public class NumberCard {
 
@@ -14,11 +13,7 @@ public class NumberCard {
 	private int[] size;  // 0: w, 1: h
 	private boolean selected;
 	private final int index;
-
-	
 	private Rect numberCardRect;
-	
-	
 	
 	public NumberCard(int number) {
 		this.number = this.lastNumber = number;
@@ -100,17 +95,9 @@ public class NumberCard {
 		size[0] = w;
 		size[1] = h;
 		numberCardRect.set(x, y, x + w, y + h);
-		Log.d("curr X", Integer.toString(x));
-		Log.d("curr Y", Integer.toString(y));
-		Log.d("curr W", Integer.toString(w));
-		Log.d("curr H", Integer.toString(h));
-
 	}
 	
 	public boolean containCoord(int x, int y) {
 		return numberCardRect.contains(x, y);
 	}
-
-
-
 }
