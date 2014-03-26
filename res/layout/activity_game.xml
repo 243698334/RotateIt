@@ -134,28 +134,36 @@
         android:text="@string/button_shuffle" />
     
     <Button
-        android:id="@+id/button_solve"
+        android:id="@+id/button_hint"
         android:layout_width="100dp"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
         android:layout_toRightOf="@+id/button_shuffle"
-        android:text="@string/button_solve" />
+        android:text="@string/button_hint" />
 
     <TextView
         android:id="@+id/textView_currentStepCount"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_above="@+id/button_solve"
-        android:layout_alignLeft="@+id/button_solve" 
+        android:layout_above="@+id/textView_minStepsToSolve"
+        android:layout_alignLeft="@+id/button_hint" 
+        android:visibility="invisible" />
+    
+    <TextView
+        android:id="@id/textView_minStepsToSolve"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_above="@id/button_hint"
+        android:layout_alignLeft="@id/button_hint"
         android:visibility="invisible" />
 
     <Button
         android:id="@+id/button_start"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignBottom="@+id/textView_currentStepCount"
+        android:layout_alignBottom="@+id/textView_minStepsToSolve"
         android:layout_alignLeft="@+id/button_undo"
-        android:layout_alignRight="@+id/button_solve"
+        android:layout_alignRight="@+id/button_hint"
         android:text="@string/button_start" />
 
 </RelativeLayout>

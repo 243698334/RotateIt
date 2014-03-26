@@ -12,7 +12,7 @@
     <string name="title_activity_about">About</string>
     <string name="button_undo">Undo</string>
     <string name="button_shuffle">Shuffle</string>
-    <string name="button_solve">Solve</string>
+    <string name="button_hint">Hint</string>
     <string name="image_button_des">NumberCard</string>
     <string name="about_rotateit">Select any rectangular cycle in a shuffled 3*3 number grid. 
   Numbers will rotate along the cycle clockwise or counter-clockwise based on your select direction. 

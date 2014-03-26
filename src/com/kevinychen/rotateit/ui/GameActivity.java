@@ -1,24 +1,29 @@
 package com.kevinychen.rotateit.ui;
 
-import java.util.Arrays;
-import java.util.Collections;
-
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.InputFilter;
+import android.text.method.DigitsKeyListener;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.kevinychen.rotateit.R;
 import com.kevinychen.rotateit.util.NumberCard;
+import com.kevinychen.rotateit.util.RotateSolver;
 import com.kevinychen.rotateit.util.RotateValidator;
 import com.kevinychen.rotateit.util.RotateValidator.RotateDirection;
 import com.kevinychen.rotateit.util.StepRecorder;
@@ -29,12 +34,19 @@ public class GameActivity extends Activity {
 	private final int NUMBER_QUANTITY = 9;
 	
 	private boolean gameStarted;
+	private Difficulty difficultyLevel;
+	private int minStepsToSolve;
+	private enum Difficulty {
+		EASY, NORMAL, HARD, IMPOSSIBLE, CUSTOM
+	}
 
+	private AlertDialog alertDialogDifficulty;
 	private Button buttonStart;
 	private Button buttonUndo;
 	private Button buttonShuffle;
-	private Button buttonSolve;
+	private Button buttonHint;
 	private TextView textViewCurrentStepCount;
+	private TextView textViewMinStepsToSolve;
 	
 	private NumberCard[] numberCards = new NumberCard[NUMBER_QUANTITY + 1];
 	private Drawable defaultNumberCardBackground;
@@ -46,11 +58,66 @@ public class GameActivity extends Activity {
 		this.getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
 				WindowManager.LayoutParams.FLAG_FULLSCREEN);
 		setContentView(R.layout.activity_game);
-
+		
 		numberCardsInit();
 		gameStarted = false;
+		
+		final CharSequence[] difficultyLevels = {"Easy", "Normal", "Hard", "Impossible", "Custom"};
+		AlertDialog.Builder difficultyBuilder = new AlertDialog.Builder(this);
+		difficultyBuilder.setTitle("Select Difficulty Level");
+		difficultyBuilder.setSingleChoiceItems(difficultyLevels, -1, new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int item) {
+				switch (item) {
+				case 0:
+					difficultyLevel = Difficulty.EASY;
+					minStepsToSolve = 2;
+					break;
+				case 1:
+					difficultyLevel = Difficulty.NORMAL;
+					minStepsToSolve = 20;
+					break;
+				case 2: 
+					difficultyLevel = Difficulty.HARD;
+					minStepsToSolve = 30;
+					break;
+				case 3: 
+					difficultyLevel = Difficulty.IMPOSSIBLE;
+					minStepsToSolve = 40;
+					break;
+				case 4:
+					difficultyLevel = Difficulty.CUSTOM;
+					AlertDialog.Builder customDifficultySetter = new AlertDialog.Builder(GameActivity.this);
+					customDifficultySetter.setTitle("Custom");
+					customDifficultySetter.setMessage("Please enter your prefered minium steps to solve the puzzle: ");
+					final EditText difficultyLevelEntry = new EditText(GameActivity.this);
+					difficultyLevelEntry.setFilters(new InputFilter[] {
+						new InputFilter.LengthFilter(2), DigitsKeyListener.getInstance()
+					});
+					difficultyLevelEntry.setKeyListener(DigitsKeyListener.getInstance());
+					customDifficultySetter.setView(difficultyLevelEntry);
+					customDifficultySetter.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int whichButton) {
+							Editable value = difficultyLevelEntry.getText();
+							minStepsToSolve = Integer.valueOf(value.toString());
+						}
+					});
 
+					customDifficultySetter.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+						public void onClick(DialogInterface dialog, int whichButton) {}
+					});
+
+					customDifficultySetter.show();
+					break;
+				}
+				alertDialogDifficulty.dismiss();
+			}
+		});
+		alertDialogDifficulty = difficultyBuilder.create();
+		alertDialogDifficulty.show();
+		
 		textViewCurrentStepCount = (TextView) findViewById(R.id.textView_currentStepCount);
+		textViewMinStepsToSolve = (TextView) findViewById(R.id.textView_minStepsToSolve);
 		
 		buttonShuffle = (Button) findViewById(R.id.button_shuffle);
 		buttonShuffle.setOnClickListener(new View.OnClickListener() {
@@ -68,11 +135,11 @@ public class GameActivity extends Activity {
 			}
 		});
 		
-		buttonSolve = (Button) findViewById(R.id.button_solve);
-		buttonSolve.setOnClickListener(new View.OnClickListener() {
+		buttonHint = (Button) findViewById(R.id.button_hint);
+		buttonHint.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
-				// TODO: Solve algorithm
+				hint();
 			}
 		});
 		
@@ -82,6 +149,7 @@ public class GameActivity extends Activity {
 			public void onClick(View arg0) {
 				buttonStart.setVisibility(View.INVISIBLE);
 				textViewCurrentStepCount.setVisibility(View.VISIBLE);
+				textViewMinStepsToSolve.setVisibility(View.VISIBLE);
 				shuffle();
 				gameStarted = true;
 			}
@@ -208,13 +276,23 @@ public class GameActivity extends Activity {
 	/**
 	 * Shuffle the NumberCards
 	 */
-	public void shuffle() {
+	private void shuffle() {
 		// creating a shuffled Integer array with value [1, 9]
 		Integer[] shuffledNumbers = new Integer[NUMBER_QUANTITY];
 		for (int i = 0; i < shuffledNumbers.length; i++) {
 			shuffledNumbers[i] = i + 1;
 		}
-		Collections.shuffle(Arrays.asList(shuffledNumbers));
+		// steps to solve differs from each difficulty level
+		for (int i = 0; i < minStepsToSolve; i++) {
+			int randomRotateType = (int) (Math.random() * 8);
+			RotateDirection randomRotateDirection = RotateDirection.values()[(int) (Math.random()*2)];
+			Integer[] rotatedIndices = RotateValidator.getRotatedIndicesByGivenType(randomRotateType, randomRotateDirection);
+			Integer[] newShuffledNumbers = new Integer[NUMBER_QUANTITY];
+			for (int j = 0; j < shuffledNumbers.length; j++) {
+				newShuffledNumbers[j] = shuffledNumbers[rotatedIndices[j] - 1];
+			}
+			shuffledNumbers = newShuffledNumbers;
+		}
 		moveNumberCards(shuffledNumbers);
 		StepRecorder.reset();
 		updateStepCounter();
@@ -259,6 +337,16 @@ public class GameActivity extends Activity {
 	}
 	
 	/**
+	 * Give the user a hint of the next move
+	 */
+	private void hint() {
+		// TODO
+		//RotateSolver.setInitialState(numberCards);
+		//Log.d("Steps away", Integer.toString(RotateSolver.solve()));
+		//RotateSolver.reset();
+	}
+	
+	/**
 	 * Change the location of NumberCards based on a given relative indices order
 	 * Swapping the value of 'number' and 'imageId' for each NumberCard
 	 * @param newPositionByIndex
@@ -282,6 +370,7 @@ public class GameActivity extends Activity {
 	 */
 	private void updateStepCounter() {
 		textViewCurrentStepCount.setText("Step Count: " + StepRecorder.getStepCount());
+		textViewMinStepsToSolve.setText("Min Steps to Solve: " + minStepsToSolve);
 	}
 	
 	/**
