@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.method.DigitsKeyListener;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
@@ -23,7 +22,6 @@ import android.widget.Toast;
 
 import com.kevinychen.rotateit.R;
 import com.kevinychen.rotateit.util.NumberCard;
-import com.kevinychen.rotateit.util.RotateSolver;
 import com.kevinychen.rotateit.util.RotateValidator;
 import com.kevinychen.rotateit.util.RotateValidator.RotateDirection;
 import com.kevinychen.rotateit.util.StepRecorder;
