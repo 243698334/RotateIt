@@ -11,3 +11,7 @@
 ## TODO
 
   Search algorithm for the minimum steps
+  
+## 
+  Notice that the background/puzzle/logo images are not compressed. 
+  App might crash due to insufficient memory.
